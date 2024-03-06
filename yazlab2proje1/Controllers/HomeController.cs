@@ -25,8 +25,8 @@ namespace yazlab2proje1.Controllers
 
             return View(articleList);
         }
-        public async Task getArticlesAsync()
-    {
+        public IMongoCollection<BsonDocument> connectionCollection()
+        {
             const string connectionUri = "mongodb://localhost:27017/";
             var client = new MongoClient(connectionUri);
 
@@ -35,10 +35,15 @@ namespace yazlab2proje1.Controllers
 
             // Koleksiyonu seç
             var collection = database.GetCollection<BsonDocument>("webscraping");
+            return collection;
+        }
+        public async Task getArticlesAsync()
+    {
+           
 
             // Tüm makaleleri getir
             var filter = new BsonDocument();
-            var cursor = await collection.FindAsync(filter);
+            var cursor = await connectionCollection().FindAsync(filter);
             var articles = await cursor.ToListAsync();
 
             // Makaleleri Article modeli şeklinde bir listede tut
@@ -74,22 +79,15 @@ namespace yazlab2proje1.Controllers
         }
 
 
-        private Article GetArticleById(int id)
+        private Article GetArticleById(ObjectId id)
         {
-            const string connectionUri = "mongodb://localhost:27017/";
-            var client = new MongoClient(connectionUri);
-
-            // Veritabanını seç
-            var database = client.GetDatabase("local");
-
-            // Koleksiyonu seç
-            var collection = database.GetCollection<BsonDocument>("webscraping");
+            
 
             // Belirli bir ID'ye göre makaleyi filtrele
-            var filter = Builders<BsonDocument>.Filter.Eq("Id", id); // Varsayılan olarak MongoDB'de ID "_id" alanı olarak saklanır
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id); // Varsayılan olarak MongoDB'de ID "_id" alanı olarak saklanır
 
             // Makaleyi bul
-            var articleDocument = collection.Find(filter).FirstOrDefault();
+            var articleDocument = connectionCollection().Find(filter).FirstOrDefault();
 
             if (articleDocument != null)
             {
@@ -97,7 +95,7 @@ namespace yazlab2proje1.Controllers
                 Article article = new Article
                 {
                     objectId = articleDocument.GetValue("_id").AsObjectId, // "_id" alanı integer olarak kabul edilmiş olsun
-                    Id = articleDocument.GetValue("Id").AsInt32, // "_id" alanı integer olarak kabul edilmiş olsun
+                    Id = articleDocument.GetValue("Id").AsInt32, 
                     title = articleDocument.GetValue("title").AsString,
                     authors = articleDocument.GetValue("authors").AsBsonArray.Select(a => a.ToString()).ToArray(), // Yazarlar dizisi string'e dönüştürülür
                     type = articleDocument.GetValue("type").AsString,
@@ -117,7 +115,7 @@ namespace yazlab2proje1.Controllers
             return null; // Makale bulunamazsa null döndür
         }
 
-        public IActionResult Article(int id)
+        public IActionResult Article(ObjectId id)
         {
 
             return View(GetArticleById(id));
