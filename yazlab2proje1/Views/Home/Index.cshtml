@@ -1,0 +1,43 @@
+﻿@model List<Article>
+@{
+    ViewData["Title"] = "Web Scraping";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scraping Akademi Uygulaması</title>
+    <link rel="stylesheet" href="~/css/index.css">
+</head>
+<body>
+    <header>
+        <h1>Web Scraping Akademi Uygulaması</h1>
+        <form id="search-form">
+            <input type="text" id="search-keywords" placeholder="Anahtar kelimeleri girin...">
+            <button type="submit">Ara</button>
+        </form>
+    </header>
+    <main id="publications">
+        <!-- Bu alana MongoDB'den çekilen yayın bilgileri dinamik olarak eklenecek -->
+        
+        @foreach(var x in Model)
+        {
+            <article>
+                <h2><a href="/Home/Article?id=@x.Id">@x.title</a></h2>
+                <p>
+                    Yazar: @string.Join(",", x.authors) 
+                </p>
+                <p>Yayın Tarihi: @x.publishDate</p>
+                <p>Özet: @x.summary</p>
+            </article>
+        }
+        
+        <!-- Diğer yayınlar da benzer şekilde eklenecek -->
+    </main>
+    <footer>
+        <p>&copy; 2024 Web Scraping Akademi</p>
+    </footer>
+</body>
+</html>

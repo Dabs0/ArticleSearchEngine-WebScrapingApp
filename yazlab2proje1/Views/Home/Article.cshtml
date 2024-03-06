@@ -1,0 +1,73 @@
+﻿@model Article
+@{
+    ViewData["Title"] = "Web Scraping";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Makale Detayı</title>
+    <link rel="stylesheet" href="~/css/site.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Makale Detayı</h1>
+    </header>
+
+    <main>
+        <article>
+            <h2>@Model.title</h2>
+            <p>@Model.summary</p>
+
+            <section>
+                <h3>Detaylar</h3>
+                <ul>
+                    <li><strong>Yazarlar:</strong> @string.Join(",", Model.authors) </li>
+                    <li><strong>Yayın Tarihi:</strong> @Model.publishDate</li>
+                    <li><strong>Yayıncı:</strong> @Model.publisher</li>
+                    <!-- Diğer detaylar buraya eklenebilir -->
+                </ul>
+            </section>
+
+            <section>
+                <h3>Özet</h3>
+                <p>@Model.summary</p>
+            </section>
+
+            <section>
+                <h3>Referanslar</h3>
+                <ul>
+                    @foreach(var x in Model.refs)
+                    {
+                        <li>@x</li>
+                    }
+                    
+                    
+                </ul>
+            </section>
+
+            <section>
+                <h3>Alıntı Sayısı</h3>
+                <p>@Model.citNumber</p>
+            </section>
+
+            <section>
+                <h3>DOI Numarası</h3>
+                <p>@Model.doi</p>
+            </section>
+
+            <section>
+                <h3>URL Adresi</h3>
+                <p><a href="@Model.url">@Model.url</a></p>
+            </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Web Scraping Akademi Uygulaması</p>
+    </footer>
+</body>
+</html>
