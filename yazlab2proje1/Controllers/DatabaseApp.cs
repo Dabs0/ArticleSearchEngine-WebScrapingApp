@@ -122,7 +122,7 @@ namespace yazlab2proje1.Controllers
 
             Console.WriteLine("Belgeler Elasticsearch'e başarıyla eklendi.");
         }
-        public void searchInEnginge(string searchString)
+        public List<Article> searchEngine(string searchString)
         {
             var searchResponse = getElasticClient().Search<Article>(s => s
     .Query(q => q
@@ -142,18 +142,23 @@ namespace yazlab2proje1.Controllers
         )
     )
 );
-
+            
             if (searchResponse.IsValid)
             {
+                List<Article> foundArticles = new List<Article>();
                 foreach (var hit in searchResponse.Hits)
                 {
+                    
                     Console.WriteLine($"Belge Id: {hit.Id}, Başlık: {hit.Source.title}");
+                    foundArticles.Add(hit.Source);
                 }
+                return foundArticles;
             }
             else
             {
                 Console.WriteLine($"Arama sırasında bir hata oluştu: {searchResponse.DebugInformation}");
             }
+            return null;
         }
     }
 }

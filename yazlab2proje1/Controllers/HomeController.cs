@@ -37,12 +37,9 @@ namespace yazlab2proje1.Controllers
 
             return View(dbApp.GetArticleById(id));
         }
-        public async Task<IActionResult> SearchResult()
+        public async Task<IActionResult> SearchResult(string search)
         {
-
-
-            await dbApp.getArticlesAsync();
-            return View(dbApp.articleList);
+            return View(dbApp.searchEngine(search));
            
         }
 
