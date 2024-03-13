@@ -1,60 +1,69 @@
 ﻿@model List<Article>
 @{
-    ViewData["Title"] = "Web Scraping";
-    
+	ViewData["Title"] = "Web Scraping";
+
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arama Sonuçları</title>
-    <link rel="stylesheet" href="~/css/site.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Arama Sonuçları</title>
+	<link rel="stylesheet" href="~/css/site.css">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    
 
-    <main>
-        
+
+	<main>
+
         <aside id="filters">
             <h2>Filtreler</h2>
-            <label>
-                <input type="checkbox" name="research" value="research">
-                Araştırma Makalesi
-            </label>
-            <label>
-                <input type="checkbox" name="review" value="review">
-                Derleme
-            </label>
-            <label>
-                <input type="checkbox" name="conference" value="conference">
-                Konferans Bildirisi
-            </label>
-            <label>
-                <input type="checkbox" name="book" value="book">
-                Kitap
-            </label>
-            <!-- Diğer filtreler buraya eklenebilir -->
+            <form action="/Home/SearchResult" method="get">
+                <label>
+                    Yayın Yılı:
+                    <input type="text" name="yearMin" placeholder="Min" maxlength="4" pattern="[0-9]{4}">
+                    <input type="text" name="yearMax" placeholder="Max" maxlength="4" pattern="[0-9]{4}">
+                </label>
+                <br>
+                <label>
+                    Yayın Türü:
+                    <input type="checkbox" name="research" value="true" >
+                    Araştırma Makalesi
+                </label>
+                <label>
+                    <input type="checkbox" name="review" value="review">
+                    Derleme
+                </label>
+                <label>
+                    <input type="checkbox" name="conference" value="conference">
+                    Konferans Bildirisi
+                </label>
+                <label>
+                    <input type="checkbox" name="book" value="book">
+                    Kitap
+                </label>
+                <!-- Diğer filtreler buraya eklenebilir -->
+                <br>
+                <button type="submit">Filtrele</button>
+            </form>
         </aside>
 
-        <section id="searchResults">
-            <h1>Arama Sonuçları</h1>
-            <h2>Bulunan Makaleler:</h2>
-            <ul>
-                @foreach (var x in Model)
-                {
-                    <li>
-                        <a href="/Home/Article?id=@x.objectId">
-                            <h3>@x.title</h3>
-                        </a>
-                    </li>
-                    <p>@x.summary</p>
-                }
-            </ul>
-        </section>
-    </main>
-
-    
+		<section id="searchResults">
+			<h1>Arama Sonuçları</h1>
+			<h2>Bulunan Makaleler:</h2>
+			<ul>
+				@foreach (var x in Model)
+				{
+					<li>
+						<a href="/Home/Article?id=@x.objectId">
+							<h3>@x.title</h3>
+						</a>
+					</li>
+					<p>@x.summary</p>
+				}
+			</ul>
+		</section>
+	</main>
 </body>
 </html>

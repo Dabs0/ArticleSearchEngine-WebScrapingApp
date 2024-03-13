@@ -9,7 +9,7 @@ namespace yazlab2proje1.Models
         public string title { get; set; }
         public string[] authors { get; set; }
         public string  type { get; set; }
-        public string publishDate { get; set; }
+        public DateTime publishDate { get; set; }
         public string publisher { get; set; }
         public string[] keywords { get; set; }
         public string summary { get; set; }
