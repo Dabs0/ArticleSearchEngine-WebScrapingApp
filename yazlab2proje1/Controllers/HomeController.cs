@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Business.Abstract;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -11,33 +12,38 @@ namespace yazlab2proje1.Controllers
 {
     public class HomeController : Controller
     {
-        DatabaseApp dbApp = new DatabaseApp();
+      //  DatabaseApp dbApp = new DatabaseApp();
+
+        private readonly IAkademikYayinService _akademikYayinService;
+        public HomeController(IAkademikYayinService akademikYayinService, ILogger<HomeController> logger)
+        {
+            _akademikYayinService = akademikYayinService;
+            _logger = logger;
+        }
 
 
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+  
         //Ana sayfa
         public async Task<IActionResult> Index()
         {
-            dbApp.updateElasticSearch();
-            await dbApp.getArticlesAsync();
 
-            return View(dbApp.articleList);
+            _akademikYayinService.updateElasticSearch();
+            await _akademikYayinService.getArticlesAsync();
+
+            return View(_akademikYayinService.getArticleList());
         }
         //Yayın sayfası
         public IActionResult Article(ObjectId id)
         {
 
-            return View(dbApp.GetArticleById(id));
+            return View(_akademikYayinService.GetArticleById(id));
         }
         //Arama sonuç sayfası
         public async Task<IActionResult> SearchResult(string search, string? yearMin=null, string? yearMax = null, bool research = true, bool review = true, bool conference = true, bool book = true)
         {
-            List<Article> results= dbApp.searchEngine(search);
+            List<Article> results= _akademikYayinService.searchEngine(search);
             // Filtreleme işlemleri
             if (!string.IsNullOrEmpty(yearMin))
             {
