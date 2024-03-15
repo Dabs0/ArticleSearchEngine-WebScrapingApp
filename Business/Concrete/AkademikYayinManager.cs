@@ -42,10 +42,10 @@ namespace Business.Concrete
             var client = new MongoClient(connectionUri);
 
 
-            var database = client.GetDatabase("local");
+            var database = client.GetDatabase("YazLab2");
 
 
-            var collection = database.GetCollection<BsonDocument>("webscraping");
+            var collection = database.GetCollection<BsonDocument>("AkademikYayin");
             return collection;
         }
 

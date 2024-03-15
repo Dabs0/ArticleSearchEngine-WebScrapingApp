@@ -55,7 +55,7 @@ namespace yazlab2proje1.Controllers
                 int maxYear = int.Parse(yearMax);
                 results = results.Where(article => article.publishDate.Year <= maxYear).ToList();
             }
-            if (research)
+            /*if (research)
             {
                 results = results.Where(article => !article.type.Equals("Makale")).ToList();
             }
@@ -70,7 +70,7 @@ namespace yazlab2proje1.Controllers
             if (book)
             {
                 results = results.Where(article => !article.type.Equals("Kitap")).ToList();
-            }
+            }*/
 
             return View(results);
 
