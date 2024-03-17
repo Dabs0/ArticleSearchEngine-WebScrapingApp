@@ -13,12 +13,12 @@ namespace Business.Abstract
     public interface IAkademikYayinService
     {
         //GetManyResult<AkademikYayin> GetAkademikYayinByName();
-        Task EklemeYap(string searchString);
+        Task EklemeYap(string searchString,int searchCount);
         public void updateElasticSearch();
-        public Task getArticlesAsync();
-        public Article GetArticleById(ObjectId id);
-        public List<Article> getArticleList();
-        public List<Article> searchEngine(string searchString);
+        public Task getDBArticlesAsync();
+        public AkademikYayin GetArticleById(ObjectId id);
+        public List<AkademikYayin> getArticleList();
+        public Task<List<AkademikYayin>> searchEngineAsync(string searchString);
         
     }
 }

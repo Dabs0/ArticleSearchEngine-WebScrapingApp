@@ -15,14 +15,15 @@
             public string Ad { get; set; }
             public ICollection<Yazar> yazars { get; set; }
             public string yayinlanmaTarihi { get; set; }
+        public DateTime yayinTarihi { get; set; }
 
-            public ICollection<Yayıncilar>? yayıncilars { get; set; }
+        public ICollection<Yayıncilar>? yayincilars { get; set; }
             public string aramaAnahtarKelime { get; set; }
 
             public ICollection<AnahtarKelime> anahtarKelimes { get; set; }
 
-            public YayinTürü yayinTürüs { get; set; }
-            public string özet { get; set; }
+            public YayinTürü yayinTurus { get; set; }
+            public string ozet { get; set; }
             public ICollection<Reference> Referans { get; set; }
             public int? alintiSayisi { get; set; }
             public string urlAdresi { get; set; }

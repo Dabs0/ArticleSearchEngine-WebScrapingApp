@@ -1,4 +1,5 @@
 ﻿using Business.Abstract;
+using Entities.Concrete;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -30,7 +31,7 @@ namespace yazlab2proje1.Controllers
         {
 
             _akademikYayinService.updateElasticSearch();
-            await _akademikYayinService.getArticlesAsync();
+            await _akademikYayinService.getDBArticlesAsync();
 
             return View(_akademikYayinService.getArticleList());
         }
@@ -43,19 +44,20 @@ namespace yazlab2proje1.Controllers
         //Arama sonuç sayfası
         public async Task<IActionResult> SearchResult(string search, string? yearMin=null, string? yearMax = null, bool research = true, bool review = true, bool conference = true, bool book = true)
         {
-            List<Article> results= _akademikYayinService.searchEngine(search);
+            
+            List<AkademikYayin> results= await _akademikYayinService.searchEngineAsync(search);
             // Filtreleme işlemleri
-            if (!string.IsNullOrEmpty(yearMin))
+            /*if (!string.IsNullOrEmpty(yearMin))
             {
                 int minYear = int.Parse(yearMin);
-                results = results.Where(article => article.publishDate.Year >= minYear).ToList();
+                results = results.Where(article => article.yayinTarihi.Year >= minYear).ToList();
             }
             if (!string.IsNullOrEmpty(yearMax))
             {
                 int maxYear = int.Parse(yearMax);
-                results = results.Where(article => article.publishDate.Year <= maxYear).ToList();
+                results = results.Where(article => article.yayinTarihi.Year <= maxYear).ToList();
             }
-            /*if (research)
+            if (research)
             {
                 results = results.Where(article => !article.type.Equals("Makale")).ToList();
             }

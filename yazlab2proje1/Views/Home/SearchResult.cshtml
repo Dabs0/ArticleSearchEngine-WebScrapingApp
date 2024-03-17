@@ -1,4 +1,4 @@
-﻿@model List<Article>
+﻿@model List<Entities.Concrete.AkademikYayin>
 @{
 	ViewData["Title"] = "Web Scraping";
 
@@ -56,11 +56,11 @@
 				@foreach (var x in Model)
 				{
 					<li>
-						<a href="/Home/Article?id=@x.objectId">
-							<h3>@x.title</h3>
+						<a href="/Home/Article?id=@x.Id">
+							<h3>@x.Ad</h3>
 						</a>
 					</li>
-					<p>@x.summary</p>
+					<p>@x.ozet</p>
 				}
 			</ul>
 		</section>

@@ -1,4 +1,4 @@
-﻿@model Article
+﻿@model Entities.Concrete.AkademikYayin
 @{
     ViewData["Title"] = "Web Scraping";
     
@@ -19,30 +19,39 @@
 
     <main>
         <article>
-            <h2>@Model.title</h2>
-            <p>@Model.summary</p>
+            <h2>@Model.Ad</h2>
+            <p>@Model.ozet</p>
 
             <section>
                 <h3>Detaylar</h3>
                 <ul>
-                    <li><strong>Yazarlar:</strong> @string.Join(",", Model.authors) </li>
-                    <li><strong>Yayın Tarihi:</strong> @Model.publishDate.Year</li>
-                    <li><strong>Yayıncı:</strong> @Model.publisher</li>
+                    <li><strong>Yazarlar:</strong> @foreach(var x in Model.yazars)
+                        {
+                            
+                            <p>@x.yazarAdSoyad</p>
+                        }
+                    </li>
+                    <li><strong>Yayın Tarihi:</strong> @Model.yayinlanmaTarihi</li>
+                    <li>
+                        <strong>Yayıncı:</strong> @foreach (var x in Model.yayincilars)
+                        {
+                            <p>@x.yayinciAd</p>
+                    }</li>
                     <!-- Diğer detaylar buraya eklenebilir -->
                 </ul>
             </section>
 
             <section>
                 <h3>Özet</h3>
-                <p>@Model.summary</p>
+                <p>@Model.ozet</p>
             </section>
 
             <section>
                 <h3>Referanslar</h3>
                 <ul>
-                    @foreach(var x in Model.refs)
+                    @foreach(var x in Model.Referans)
                     {
-                        <li>@x</li>
+                        <li>@x.referenceAd</li>
                     }
                     
                     
@@ -51,17 +60,17 @@
 
             <section>
                 <h3>Alıntı Sayısı</h3>
-                <p>@Model.citNumber</p>
+                <p>@Model.alintiSayisi</p>
             </section>
 
             <section>
                 <h3>DOI Numarası</h3>
-                <p>@Model.doi</p>
+                <p></p>
             </section>
 
             <section>
                 <h3>URL Adresi</h3>
-                <p><a href="@Model.url">@Model.url</a></p>
+                <p><a href="@Model.urlAdresi">@Model.urlAdresi</a></p>
             </section>
         </article>
     </main>

@@ -1,4 +1,4 @@
-﻿@model List<Article>
+﻿@model List<Entities.Concrete.AkademikYayin>
 @{
     ViewData["Title"] = "Web Scraping";
     
@@ -21,12 +21,16 @@
         @foreach(var x in Model)
         {
             <article>
-                <h2><a href="/Home/Article?id=@x.objectId">@x.title</a></h2>
+                <h2><a href="/Home/Article?id=@x.Id">@x.Ad</a></h2>
                 <p>
-                    Yazar: @string.Join(",", x.authors) 
+                    Yazar: @foreach(Entities.Concrete.Yazar y in x.yazars)
+                    {
+                    <p>@y.yazarAdSoyad</p>
+                            
+                    }
                 </p>
-                <p>Yayın Tarihi: @x.publishDate</p>
-                <p>Özet: @x.summary</p>
+                <p>Yayın Tarihi: @x.yayinlanmaTarihi</p>
+                <p>Özet: @x.ozet</p>
             </article>
         }
         

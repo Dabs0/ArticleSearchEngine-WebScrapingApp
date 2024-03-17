@@ -5,6 +5,7 @@ using DataAccess.Abstarct;
 using Entities.Concrete;
 using HtmlAgilityPack;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Nest;
 using OpenQA.Selenium;
@@ -30,7 +31,7 @@ namespace Business.Concrete
         List<string> yayincilar = new List<string>();
         List<string> yazarlar = new List<string>();
         List<string> aramaAnahtarKelime = new List<string>();
-        public List<Article> articleList = new List<Article>();
+        public List<AkademikYayin> articleList = new List<AkademikYayin>();
         public AkademikYayinManager(IAkademikYayinDataAccess akademikYayinDataAccess, Core.Repository.Abstract.IRepository<AkademikYayin> akademikYayinRepository)
         {
             _akademikYayinDataAccess = akademikYayinDataAccess;
@@ -49,34 +50,19 @@ namespace Business.Concrete
             return collection;
         }
 
-        public Article createModelArticle(BsonDocument article)
+        public AkademikYayin createModelArticle(BsonDocument article)
         {
 
-            return new Article
-            {
-                objectId = article.GetValue("_id").AsObjectId,
-                Id = article.GetValue("Id").AsInt32,
-                title = article.GetValue("title").AsString,
-                authors = article.GetValue("authors").AsBsonArray.ToJson().Trim('[', ']').Split(", "),
-                type = article.GetValue("type").AsString,
-                publishDate = DateTime.ParseExact(article.GetValue("publishDate").AsString, "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                publisher = article.GetValue("publisher").AsString,
-                keywords = article.GetValue("keywords").AsBsonArray.ToJson().Trim('[', ']').Split(", "),
-                summary = article.GetValue("summary").AsString,
-                refs = article.GetValue("refs").AsBsonArray.ToJson().Trim('[', ']').Split(", "),
-                citNumber = article.GetValue("citNumber").AsInt32,
-                doi = article.GetValue("doi").AsString,
-                url = article.GetValue("url").AsString
-            };
+            return BsonSerializer.Deserialize<AkademikYayin>(article);
         }
 
         public ElasticClient getElasticClient()
         {
-            var settings = new ConnectionSettings(new Uri("http://localhost:9200")).DefaultIndex("webscraping_index");
+            var settings = new ConnectionSettings(new Uri("http://localhost:9200")).DefaultIndex("your_index_name");
             var elasticClient = new ElasticClient(settings);
             return elasticClient;
         }
-        public async Task getArticlesAsync()
+        public async Task getDBArticlesAsync()
         {
 
 
@@ -97,13 +83,13 @@ namespace Business.Concrete
             Console.WriteLine("Makale Listesi:");
             foreach (var article in articleList)
             {
-                Console.WriteLine($"{article.Id}, {article.title}, {string.Join(", ", article.authors)}");
+                Console.WriteLine($"{article.Id}, {article.Ad}, {string.Join(", ", article.yazars)}");
             }
 
         }
 
         //Yayınları id'sine göre al
-        public Article GetArticleById(ObjectId id)
+        public AkademikYayin GetArticleById(ObjectId id)
         {
 
 
@@ -123,7 +109,7 @@ namespace Business.Concrete
 
             return null; // Makale bulunamazsa null döndür
         }
-        public List<Article> getArticleList()
+        public List<AkademikYayin> getArticleList()
         {
             return articleList;
         }
@@ -135,7 +121,7 @@ namespace Business.Concrete
             var mongoDocuments = getCollection().Find(Builders<BsonDocument>.Filter.Empty).ToList();
 
             // MongoDB belgelerini Elasticsearch belgelerine dönüştür ve Elasticsearch'e ekle
-            var elasticDocuments = new List<Article>();
+            var elasticDocuments = new List<AkademikYayin>();
             foreach (var articleDocument in mongoDocuments)
             {
                 elasticDocuments.Add(createModelArticle(articleDocument));
@@ -155,38 +141,55 @@ namespace Business.Concrete
         }
 
         //kelimeyi elasticsearch le ara
-        public List<Article> searchEngine(string searchString)
+        public async Task<List<AkademikYayin>> searchEngineAsync(string searchString)
         {
             //webScrapingAsync(searchString).Wait();
-
-            EklemeYap(searchString);
-
-            var searchResponse = getElasticClient().Search<Article>(s => s
+            var searchResponse = getElasticClient().Search<AkademikYayin>(s => s
                 .Query(q => q
                         .MultiMatch(mm => mm
                         .Query(searchString)
                         .Fields(f => f
-                            .Field(ff => ff.title)
-                            .Field(ff => ff.authors)
-                            .Field(ff => ff.type)
-                            .Field(ff => ff.publisher)
-                            .Field(ff => ff.keywords)
-                            .Field(ff => ff.summary)
-                            .Field(ff => ff.refs)
-                            .Field(ff => ff.doi)
-                            .Field(ff => ff.url)
+                            .Field(ff => ff.Ad)
+
                         )
                     )
                 )
             );
+            if(searchResponse.IsValid && searchResponse.Hits.Count >= 10)
+            {
+                Console.WriteLine("Tüm veriler Veritabanından alınıyor...");
+            }
+            else
+            {
+                Console.WriteLine(10 - searchResponse.Hits.Count+ " Tane Arama Veritabanında Eksik. Siteden Alınıyor...");
+                await EklemeYap(searchString,10-searchResponse.Hits.Count);
+                
+                searchResponse = getElasticClient().Search<AkademikYayin>(s => s
+                    .Query(q => q
+                            .MultiMatch(mm => mm
+                            .Query(searchString)
+                            .Fields(f => f
+                                .Field(ff => ff.Ad)
+
+                            )
+                        )
+                    )
+                );
+            }
+            
+            Console.WriteLine(getElasticClient().Indices);
 
             if (searchResponse.IsValid)
             {
-                List<Article> foundArticles = new List<Article>();
+                var debugInfo = searchResponse.DebugInformation;
+                
+                Console.WriteLine("debug info: "+debugInfo);
+                
+                List<AkademikYayin> foundArticles = new List<AkademikYayin>();
                 foreach (var hit in searchResponse.Hits)
                 {
 
-                    Console.WriteLine($"Belge Id: {hit.Id}, Başlık: {hit.Source.title}");
+                    Console.WriteLine($"Belge Id: {hit.Id}, Başlık: {hit.Source.Ad}");
 
                     foundArticles.Add(hit.Source);
                 }
@@ -200,7 +203,8 @@ namespace Business.Concrete
         }
 
 
-        public async Task EklemeYap(string keyword) 
+
+        public async Task EklemeYap(string keyword,int searchCount) 
         {
             string url = $"https://dergipark.org.tr/en/search?q={HttpUtility.UrlEncode(keyword)}";
 
@@ -229,8 +233,10 @@ namespace Business.Concrete
             {
                 Console.WriteLine($"Toplam {resultLinks.Count} arama sonucu bulundu. İçerikleri çekiliyor...");
 
-                foreach (var resultLink in resultLinks.Take(5)) // İlk 10 sonucu alalım
+                foreach (var resultLink in resultLinks.Take(20)) // İlk 20 sonucu alalım
                 {
+                    if (searchCount <= 0)
+                        break;
                     keywordList.Clear();
                     referenceList.Clear();
                     yayincilar.Clear();
@@ -321,12 +327,14 @@ namespace Business.Concrete
                         }
 
                     }
-                    var resultInsert = _AkademikRepository.InsertOneAsync(new AkademikYayin
+                    
+                    AkademikYayin yayin= new AkademikYayin
                     {
                         urlAdresi = resultLink,
                         Ad = resultDocument.DocumentNode.SelectSingleNode("//h3[@class ='article-title']")?.InnerText.Trim(),
                         yayinlanmaTarihi = resultDocument.DocumentNode.SelectSingleNode("//tr[th='Publication Date']/td")?.InnerText,
-                        özet = resultDocument.DocumentNode.SelectSingleNode("//h3[text()='Abstract']/following-sibling::p")?.InnerText,
+                        //yayinTarihi = DateTime.ParseExact(resultDocument.DocumentNode.SelectSingleNode("//tr[th='Publication Date']/td")?.InnerText, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                        ozet = resultDocument.DocumentNode.SelectSingleNode("//h3[text()='Abstract']/following-sibling::p")?.InnerText,
                         anahtarKelimes = keywordList.Count > 0
                          ? keywordList.Select(keyw => new AnahtarKelime
                          {
@@ -342,14 +350,14 @@ namespace Business.Concrete
                          }).ToList()
                          : new List<Entities.Concrete.Reference>(),
 
-                        yayinTürüs = yayinTuru != null
+                        yayinTurus = yayinTuru != null
                          ? new YayinTürü
                          {
                              yayinTürüId = ObjectId.GenerateNewId(),
                              YayinTürüAd = yayinTuru.InnerText
                          }
                          : null,
-                        yayıncilars = yayincilar.Count > 0
+                        yayincilars = yayincilar.Count > 0
                          ? referenceList.Select(ref2 => new Yayıncilar
                          {
                              yayinciId = ObjectId.GenerateNewId(),
@@ -367,23 +375,41 @@ namespace Business.Concrete
                         image = imgSrc
 
 
+                    };
+                    if (!checkIfExists(yayin))
+                    {
+                        var resultInsert = _AkademikRepository.InsertOneAsync(yayin);
+                        Console.WriteLine("EKLEME YAPILDI");
+                        searchCount--;
                     }
+                    else
+                    {
+                        Console.WriteLine("Zaten Mevcut");
+                    }
+                    
                     
 
 
 
 
-                    );
-                    Console.WriteLine("EKLEME YAPILDI");
 
-
-
-
-
-                    // Geri kalan işlemleri burada yapabilirsiniz
+                   
                 }
             }
+            updateElasticSearch();
         
+        }
+        public bool checkIfExists(AkademikYayin article)
+        {
+            foreach (AkademikYayin x in articleList)
+            {
+                if (article.urlAdresi.Equals(x.urlAdresi))
+                {
+                    return true;
+                }
+            }
+            
+            return false;
         }
 
         
