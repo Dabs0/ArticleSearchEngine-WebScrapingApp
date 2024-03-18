@@ -20,7 +20,10 @@
     <main>
         <article>
             <h2>@Model.Ad</h2>
-            <p>@Model.ozet</p>
+            <section>
+                <h3>Özet</h3>
+                <p>@Model.ozet</p>
+            </section>
 
             <section>
                 <h3>Detaylar</h3>
@@ -40,11 +43,11 @@
                     <!-- Diğer detaylar buraya eklenebilir -->
                 </ul>
             </section>
-
             <section>
-                <h3>Özet</h3>
-                <p>@Model.ozet</p>
+                <h3>Yayın Türü</h3>
+                <p>@Model.yayinTurus.YayinTuruAd</p>
             </section>
+            
 
             <section>
                 <h3>Referanslar</h3>
@@ -60,17 +63,31 @@
 
             <section>
                 <h3>Alıntı Sayısı</h3>
-                <p>@Model.Referans.Count</p>
+                <p>@Model.alintiSayisi</p>
             </section>
 
             <section>
                 <h3>DOI Numarası</h3>
-                <p></p>
+                <p>@Model.doiNumarasi</p>
             </section>
 
             <section>
                 <h3>URL Adresi</h3>
                 <p><a href="@Model.urlAdresi">@Model.urlAdresi</a></p>
+            </section>
+            <section>
+                <h3>Makale Anahtar Kelime</h3>
+                <p>
+                @foreach(var x in Model.anahtarKelimes){
+                
+                    @x.kelimeAdi
+                    <span>,</span>
+                        }
+                    </p>
+            </section>
+            <section>
+                <h3>Aranan Anahtar Kelime</h3>
+                <p>@Model.aramaAnahtarKelime</p>
             </section>
         </article>
     </main>

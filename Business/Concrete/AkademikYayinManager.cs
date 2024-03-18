@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
@@ -26,11 +27,7 @@ namespace Business.Concrete
     {
         private readonly IAkademikYayinDataAccess _akademikYayinDataAccess;
         private readonly Core.Repository.Abstract.IRepository<AkademikYayin> _AkademikRepository;
-        List<string> keywordList = new List<string>();
-        List<string> referenceList = new List<string>();
-        List<string> yayincilar = new List<string>();
-        List<string> yazarlar = new List<string>();
-        List<string> aramaAnahtarKelime = new List<string>();
+
         public List<AkademikYayin> articleList = new List<AkademikYayin>();
         public List<YayinTuru> yayinTurleriList = new List<YayinTuru>();
 
@@ -163,6 +160,12 @@ namespace Business.Concrete
                         .Query(searchString)
                         .Fields(f => f
                             .Field(ff => ff.Ad)
+                            .Field(ff => ff.ozet)
+                            .Field(ff => ff.anahtarKelimes)
+                            .Field(ff => ff.aramaAnahtarKelime)
+                            .Field(ff => ff.urlAdresi)
+                            .Field(ff => ff.yazars)
+                            .Field(ff => ff.yayincilars)
 
                         )
                     )
@@ -246,8 +249,12 @@ namespace Business.Concrete
                 {
                     if (searchCount <= 0)
                         return;
-
-                    keywordList.Clear();
+					List<string> keywordList = new List<string>();
+					List<string> referenceList = new List<string>();
+					List<string> yayincilar = new List<string>();
+					List<string> yazarlar = new List<string>();
+					List<string> aramaAnahtarKelime = new List<string>();
+					keywordList.Clear();
                     referenceList.Clear();
                     yayincilar.Clear();
                     yazarlar.Clear();
@@ -263,8 +270,26 @@ namespace Business.Concrete
                     var tableRows = resultDocument.DocumentNode.SelectSingleNode("//table[@class='table table-striped m-table cite-table']/tbody");
                     var authorSectionNode = resultDocument.DocumentNode.SelectSingleNode("//th[text() = 'Authors']");
                     var imgElement = resultDocument.DocumentNode.SelectSingleNode("//img[contains(@class,'d-flex') and contains(@class,'justify-content-center') and contains(@class,'rounded') and contains(@class,'mx-auto') and contains(@class,'d-block')]");
+					var doiNumarasi = resultDocument.DocumentNode.SelectSingleNode("//a[@class = 'doi-link']")?.Attributes["href"]?.Value;
+					var downloadLink = resultDocument.DocumentNode.SelectSingleNode("//a[contains(@class, 'pdf') and contains(@title, 'Article PDF link')]");
 
-                    string imgSrc = imgElement?.GetAttributeValue("src", "");
+					string hrefValues = downloadLink?.GetAttributeValue("href", "");
+					string doi = " ";
+					// Regex deseni
+					string desen = @"https:\/\/doi\.org\/(\d+\.\d+)\/";
+
+					// Eşleşmeyi bul
+					if (doiNumarasi != null)
+					{
+						Match eslesme = Regex.Match(doiNumarasi, desen);
+						if (eslesme.Success)
+						{
+
+							doi = eslesme.Groups[1].Value;
+						}
+
+					}
+					string imgSrc = imgElement?.GetAttributeValue("src", "");
 
                     // Yazarları çekme
                     if (authorSectionNode != null)
@@ -309,6 +334,7 @@ namespace Business.Concrete
                     if (tableRows != null)
                     {
                         var table = tableRows.SelectNodes(".//tr");
+                        if(table!=null)
                         foreach (var row in table)
                         {
                             yayincilar.Add(row.SelectSingleNode(".//td[2]")?.InnerText.Trim());
@@ -369,7 +395,7 @@ namespace Business.Concrete
                             }
                             : null,
                         yayincilars = yayincilar.Count > 0
-                            ? referenceList.Select(ref2 => new Yayincilar
+                            ? yayincilar.Select(ref2 => new Yayincilar
                             {
                                 yayinciId = ObjectId.GenerateNewId(),
                                 yayinciAd = ref2
@@ -382,13 +408,25 @@ namespace Business.Concrete
                                 yazarAdSoyad = ref2
                             }).ToList()
                             : new List<Yazar>(),
-                        image = imgSrc
-                    };
-                    if(yayin.yayinlanmaTarihi!=null)
-                    yayin.yayinYili = int.TryParse(yayin.yayinlanmaTarihi.Split(' ')[2], out int result) ? result : 0;
-                    if (yayin.yayinTurus != null)
-                        yayin.yayinTurus.YayinTuruAd = yayin.yayinTurus.YayinTuruAd.ToLowerInvariant();
+                        image = imgSrc,
+						pdflink = "https://dergipark.org.tr" + hrefValues,
+						doiNumarasi = doi
+					};
+                    if (yayin.yayinlanmaTarihi != null)
+                    {
+                        try
+                        {
+                            yayin.yayinYili = int.TryParse(yayin.yayinlanmaTarihi.Split(' ')[2], out int result) ? result : 0;
+                        }
+                        catch { 
+                        }
 
+                    }
+                    if (yayin.yayinTurus != null)
+                    {
+                        yayin.yayinTurus.YayinTuruAd = yayin.yayinTurus.YayinTuruAd.ToLowerInvariant();
+                    }
+                    yayin.aramaAnahtarKelime = keyword;
 					// Yayın var mı diye kontrol etme ve eklemek
 					if (!checkIfExists(yayin))
                     {

@@ -27,6 +27,8 @@
             public ICollection<Reference> Referans { get; set; }
             public int? alintiSayisi { get; set; }
             public string urlAdresi { get; set; }
+        public string doiNumarasi { get; set; }
+        public string pdflink { get; set; }
 
         public string image { get; set; }
 
