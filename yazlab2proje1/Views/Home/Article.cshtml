@@ -1,25 +1,61 @@
 ﻿@model Entities.Concrete.AkademikYayin
 @{
-    ViewData["Title"] = "Web Scraping";
-    
+    ViewData["Title"] = "Makale Detayı";
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Makale Detayı</title>
-    <link rel="stylesheet" href="~/css/site.css">
+    <title>Makale Detayı - @Model.Ad</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        article {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        section {
+            margin-bottom: 20px;
+        }
+
+        h2, h3 {
+            color: #007bff;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        a {
+            color: #007bff;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Makale Detayı</h1>
-    </header>
+    
 
     <main>
         <article>
-            <h2>@Model.Ad</h2>
+            <section>
+                <h2>@Model.Ad</h2>
+            </section>
+
             <section>
                 <h3>Özet</h3>
                 <p>@Model.ozet</p>
@@ -28,9 +64,9 @@
             <section>
                 <h3>Detaylar</h3>
                 <ul>
-                    <li><strong>Yazarlar:</strong> @foreach(var x in Model.yazars)
+                    <li>
+                        <strong>Yazarlar:</strong> @foreach (var x in Model.yazars)
                         {
-                            
                             <p>@x.yazarAdSoyad</p>
                         }
                     </li>
@@ -39,31 +75,30 @@
                         <strong>Yayıncı:</strong> @foreach (var x in Model.yayincilars)
                         {
                             <p>@x.yayinciAd</p>
-                    }</li>
+                        }
+                    </li>
                     <!-- Diğer detaylar buraya eklenebilir -->
                 </ul>
             </section>
+
             <section>
                 <h3>Yayın Türü</h3>
                 <p>@Model.yayinTurus.YayinTuruAd</p>
             </section>
-            
 
             <section>
                 <h3>Referanslar</h3>
                 <ul>
-                    @foreach(var x in Model.Referans)
+                    @foreach (var x in Model.Referans)
                     {
                         <li>@x.referenceAd</li>
                     }
-                    
-                    
                 </ul>
             </section>
 
             <section>
                 <h3>Alıntı Sayısı</h3>
-                <p>@Model.alintiSayisi</p>
+                <p>@Model.Referans.Count</p>
             </section>
 
             <section>
@@ -76,15 +111,21 @@
                 <p><a href="@Model.urlAdresi">@Model.urlAdresi</a></p>
             </section>
             <section>
+                <h3>Pdf Adresi</h3>
+                <p><a href="@Model.pdflink">@Model.pdflink</a></p>
+            </section>
+
+            <section>
                 <h3>Makale Anahtar Kelime</h3>
                 <p>
-                @foreach(var x in Model.anahtarKelimes){
-                
-                    @x.kelimeAdi
-                    <span>,</span>
-                        }
-                    </p>
+                    @foreach (var x in Model.anahtarKelimes)
+                    {
+                        @x.kelimeAdi
+                        <span>,</span>
+                    }
+                </p>
             </section>
+
             <section>
                 <h3>Aranan Anahtar Kelime</h3>
                 <p>@Model.aramaAnahtarKelime</p>
@@ -92,6 +133,5 @@
         </article>
     </main>
 
-    
 </body>
 </html>

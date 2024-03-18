@@ -7,6 +7,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Configuration;
 using Nest;
 using System.Diagnostics;
+using System.Globalization;
 using yazlab2proje1.Models;
 
 namespace yazlab2proje1.Controllers
@@ -41,11 +42,11 @@ namespace yazlab2proje1.Controllers
 
             return View(_akademikYayinService.GetArticleById(id));
         }
-		
+
 		//Arama sonuç sayfası
-		public async Task<IActionResult> SearchResult(string search, string? yearMin = null, string? yearMax = null, List<string> selectedTypes = null)
+		public async Task<IActionResult> SearchResult(string search, string? yearMin = null, string? yearMax = null, List<string> selectedTypes = null, string sortBy = null)
 		{
-            await _akademikYayinService.getDBArticlesAsync();
+			await _akademikYayinService.getDBArticlesAsync();
             
             
 			List<AkademikYayin> results = await _akademikYayinService.searchEngineAsync(search);
@@ -76,19 +77,37 @@ namespace yazlab2proje1.Controllers
 				results = results.Where(article => article.yayinYili <= maxYear).ToList();
 			}
 			// Eğer hiçbir tür işaretlenmemişse veya hiç tür işaretlenmemişse
+			
+
+			// Seçilen yayın türlerine göre filtreleme yap
+
+			if (!string.IsNullOrEmpty(sortBy))
+			{
+				switch (sortBy)
+				{
+					case "name":
+						results = results.OrderBy(article => article.Ad).ToList();
+						break;
+					case "date":
+						results = results.OrderByDescending(article => article.yayinYili).ToList();
+						break;
+					case "citation":
+						results = results.OrderByDescending(article => article.alintiSayisi).ToList();
+						break;
+					// Diğer sıralama seçenekleri buraya eklenebilir
+					default:
+						break;
+				}
+			}
+
+
+
 			if (selectedTypes == null || selectedTypes.Count == 0)
 			{
 				return View(results);
 			}
-
-			// Seçilen yayın türlerine göre filtreleme yap
 			results = results.Where(article => selectedTypes.Contains(article.yayinTurus.YayinTuruAd)).ToList();
 
-			
-			
-			
-			
-			
 			return View(results);
 
 

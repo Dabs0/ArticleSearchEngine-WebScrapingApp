@@ -1,41 +1,91 @@
 ﻿@model List<Entities.Concrete.AkademikYayin>
 @{
     ViewData["Title"] = "Web Scraping";
-    
+
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Scraping Akademi Uygulaması</title>
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="~/css/index.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            margin-bottom: 20px;
+            text-align: center; /* Başlık metnini ortala */
+        }
+
+        main.container {
+            padding: 20px;
+        }
+
+        article {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+            article h2 {
+                margin-bottom: 10px;
+            }
+
+            article p {
+                margin-bottom: 5px;
+            }
+
+                article p:last-child {
+                    margin-bottom: 0;
+                }
+
+        .yazarlar {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .yazar {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Web Scraping Akademi Uygulaması</h1>
-    </header>
-    <main id="publications">
+    
+    <main class="container">
         <!-- Bu alana MongoDB'den çekilen yayın bilgileri dinamik olarak eklenecek -->
-        
-        @foreach(var x in Model)
+        @foreach (var x in Model)
         {
             <article>
                 <h2><a href="/Home/Article?id=@x.Id">@x.Ad</a></h2>
-                <p>
-                    Yazar: @foreach(Entities.Concrete.Yazar y in x.yazars)
+                <div class="yazarlar">
+                    @foreach (var yazar in x.yazars.Take(3)) // İlk üç yazarı al
                     {
-                    <p>@y.yazarAdSoyad</p>
-                            
+                        <span class="yazar">@yazar.yazarAdSoyad</span>
                     }
-                </p>
+                </div>
                 <p>Yayın Tarihi: @x.yayinlanmaTarihi</p>
-                <p>Özet: @x.ozet</p>
+                <p>Özet: @if (!string.IsNullOrEmpty(x.ozet))
+                    {
+                        @Html.Raw(x.ozet.Length > 300 ? x.ozet.Substring(0, 300) + "..." : x.ozet)
+                    }</p>
             </article>
         }
-        
+
         <!-- Diğer yayınlar da benzer şekilde eklenecek -->
     </main>
-    
+
 </body>
 </html>

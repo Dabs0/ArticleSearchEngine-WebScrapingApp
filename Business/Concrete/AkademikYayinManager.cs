@@ -245,10 +245,10 @@ namespace Business.Concrete
             {
                 Console.WriteLine($"Toplam {resultLinks.Count} arama sonucu bulundu. İçerikleri çekiliyor...");
 
-                var tasks = resultLinks.Take(20).Select(async resultLink =>
+                var tasks = resultLinks.Take(resultLinks.Count).Select(async resultLink =>
                 {
-                    if (searchCount <= 0)
-                        return;
+                    //if (searchCount <= 0)
+                    //    return;
 					List<string> keywordList = new List<string>();
 					List<string> referenceList = new List<string>();
 					List<string> yayincilar = new List<string>();
@@ -427,15 +427,20 @@ namespace Business.Concrete
                         yayin.yayinTurus.YayinTuruAd = yayin.yayinTurus.YayinTuruAd.ToLowerInvariant();
                     }
                     yayin.aramaAnahtarKelime = keyword;
+                    yayin.alintiSayisi = yayin.Referans.Count;
 					// Yayın var mı diye kontrol etme ve eklemek
 					if (!checkIfExists(yayin))
                     {
-                        var resultInsert = _AkademikRepository.InsertOneAsync(yayin);
-                        Console.WriteLine("EKLEME YAPILDI");
-                        articleList.Add(yayin);
-                        
-                        
-                        searchCount--;
+                        if (yayin.Ad != null)
+                        {
+                            var resultInsert = _AkademikRepository.InsertOneAsync(yayin);
+                            Console.WriteLine("EKLEME YAPILDI");
+                            articleList.Add(yayin);
+
+
+                            searchCount--;
+                        }
+                      
                     }
                     else
                     {

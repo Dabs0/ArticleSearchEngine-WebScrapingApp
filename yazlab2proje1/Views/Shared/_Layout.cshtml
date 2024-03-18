@@ -4,25 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/css/layout.css">
-    </head>
-    <body>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+        }
+
+        .navbar-collapse {
+            justify-content: flex-end;
+        }
+
+        .form-inline {
+            margin-right: 20px;
+        }
+
+        main.container {
+            margin-top: 20px;
+        }
+
+        .search-container {
+            text-align: center;
+        }
+
+            .search-container input[type=text] {
+                width: 50%; /* Arama kutusunun genişliği */
+                padding: 10px; /* Arama kutusunun iç boşluğu */
+                margin: 8px 0; /* Arama kutusunun dış boşluğu */
+                box-sizing: border-box; /* Kutu modelini sınırlarına göre belirleme */
+            }
+
+            .search-container button {
+                padding: 10px 20px; /* Butonun iç boşluğu */
+                margin: 8px 0; /* Butonun dış boşluğu */
+                cursor: pointer; /* İmlecin buton üzerine geldiğinde el işareti olmasını sağlar */
+                background-color: #4CAF50; /* Butonun arka plan rengi */
+                color: white; /* Butonun metin rengi */
+                border: none; /* Butonun kenarlık yok */
+                border-radius: 5px; /* Butonun köşelerini yuvarlar */
+                font-size: 16px; /* Butonun metin boyutu */
+            }
+
+                .search-container button:hover {
+                    background: #45a049; /* İmleç buton üzerine geldiğinde butonun arka plan rengi */
+                }
+
+    </style>
+</head>
+<body>
     <header>
-        <div class="navbar">
-            <a href="/">Ana Sayfa</a>
-            <div class="search-container">
-                <form action="/Home/SearchResult" method="get">
-                    <input type="text" placeholder="Yayınlarda ara..." name="search" value="@ViewBag.SearchValue">
-                    <button type="submit">Ara</button>
-                </form>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/">Ana Sayfa</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <form class="form-inline my-2 my-lg-0" action="/Home/SearchResult" method="get">
+                            <input class="form-control mr-sm-2" type="search" placeholder="Yayınlarda ara..." aria-label="Search" name="search" value="@ViewBag.SearchValue">
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Ara</button>
+                        </form>
+                    </li>
+                </ul>
             </div>
-        </div>
+        </nav>
     </header>
 
-    <main>
+    <main style="padding-right: 15px; padding-left: 15px;">
         @RenderBody()
     </main>
 
-    
+
+
 </body>
 </html>
