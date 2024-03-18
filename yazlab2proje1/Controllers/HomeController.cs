@@ -41,76 +41,59 @@ namespace yazlab2proje1.Controllers
 
             return View(_akademikYayinService.GetArticleById(id));
         }
-        //Arama sonuç sayfası
-        public async Task<IActionResult> SearchResult(string search, string? yearMin=null, string? yearMax = null, bool research = true, bool review = true, bool conference = true, bool book = true)
-        {
+		
+		//Arama sonuç sayfası
+		public async Task<IActionResult> SearchResult(string search, string? yearMin = null, string? yearMax = null, List<string> selectedTypes = null)
+		{
+            await _akademikYayinService.getDBArticlesAsync();
             
-            List<AkademikYayin> results= await _akademikYayinService.searchEngineAsync(search);
-            // Filtreleme işlemleri
-            /*if (!string.IsNullOrEmpty(yearMin))
-            {
-                int minYear = int.Parse(yearMin);
-                results = results.Where(article => article.yayinTarihi.Year >= minYear).ToList();
-            }
-            if (!string.IsNullOrEmpty(yearMax))
-            {
-                int maxYear = int.Parse(yearMax);
-                results = results.Where(article => article.yayinTarihi.Year <= maxYear).ToList();
-            }
-            if (research)
-            {
-                results = results.Where(article => !article.type.Equals("Makale")).ToList();
-            }
-            if (review)
-            {
-                results = results.Where(article => !article.type.Equals("Derleme")).ToList();
-            }
-            if (conference)
-            {
-                results = results.Where(article => !article.type.Equals("Konferans Bildirisi")).ToList();
-            }
-            if (book)
-            {
-                results = results.Where(article => !article.type.Equals("Kitap")).ToList();
-            }*/
-
-            return View(results);
-
-
-            /*foreach(Article result in results)
-            {
-                if(yearMin!=null && result.publishDate.Year<Convert.ToInt32(yearMin) )
-                {
-                    filteredResults.Remove(result);
-                }
-                if(yearMax!=null && result.publishDate.Year > Convert.ToInt32(yearMax))
-                {
-                    filteredResults.Remove(result);
-                }
-                switch (result.type)
-                {
-                    case "Makale":
-                        if (!research)
-                            filteredResults.Remove(result);
-                        break;
-                    case "Konferans Bildirisi":
-                        if (!conference)
-                            filteredResults.Remove(result);
-                        break;
-                    case "Kitap":
-                        if (!book)
-                            filteredResults.Remove(result);
-                        break;
-                    case "Derleme":
-                        if (!review)
-                            filteredResults.Remove(result);
-                        break;
-                    default: 
-                        break;
-                }
-            }*/
-
             
+			List<AkademikYayin> results = await _akademikYayinService.searchEngineAsync(search);
+
+            foreach(AkademikYayin yayin in _akademikYayinService.getArticleList())
+            {
+                if(yayin.yayinTurus!=null)
+                _akademikYayinService.checkIfYayinTuruExists(yayin.yayinTurus);
+            }
+			await _akademikYayinService.getYayinTurleriAsync();
+
+
+			ViewBag.SearchValue = search;
+			ViewBag.MinYearValue = yearMin;
+			ViewBag.MaxYearValue = yearMax;
+			ViewBag.YayinTurleri = _akademikYayinService.getYayinTurleriList();
+
+
+
+			if (!string.IsNullOrEmpty(yearMin))
+			{
+				int minYear = int.Parse(yearMin);
+				results = results.Where(article => article.yayinYili >= minYear).ToList();
+			}
+			if (!string.IsNullOrEmpty(yearMax))
+			{
+				int maxYear = int.Parse(yearMax);
+				results = results.Where(article => article.yayinYili <= maxYear).ToList();
+			}
+			// Eğer hiçbir tür işaretlenmemişse veya hiç tür işaretlenmemişse
+			if (selectedTypes == null || selectedTypes.Count == 0)
+			{
+				return View(results);
+			}
+
+			// Seçilen yayın türlerine göre filtreleme yap
+			results = results.Where(article => selectedTypes.Contains(article.yayinTurus.YayinTuruAd)).ToList();
+
+			
+			
+			
+			
+			
+			return View(results);
+
+
+
+
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

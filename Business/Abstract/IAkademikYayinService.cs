@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using yazlab2proje1.Models;
+
 
 namespace Business.Abstract
 {
@@ -14,11 +14,20 @@ namespace Business.Abstract
     {
         //GetManyResult<AkademikYayin> GetAkademikYayinByName();
         Task EklemeYap(string searchString,int searchCount);
-        public void updateElasticSearch();
-        public Task getDBArticlesAsync();
+        public Task updateElasticSearch();
+
+		public Task getDBArticlesAsync();
         public AkademikYayin GetArticleById(ObjectId id);
         public List<AkademikYayin> getArticleList();
         public Task<List<AkademikYayin>> searchEngineAsync(string searchString);
-        
-    }
+        public void checkIfYayinTuruExists(YayinTuru yayinTuru);
+        public List<YayinTuru> getYayinTurleriList();
+        public Task getYayinTurleriAsync();
+
+
+
+
+
+
+	}
 }

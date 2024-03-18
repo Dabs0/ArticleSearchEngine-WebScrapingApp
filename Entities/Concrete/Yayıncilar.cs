@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Entities.Concrete
 {
-    public class Yayıncilar
+    public class Yayincilar
     {
         [BsonId]
         public ObjectId yayinciId { get; set; }

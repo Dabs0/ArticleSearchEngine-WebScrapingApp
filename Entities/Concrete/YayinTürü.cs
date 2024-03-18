@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Entities.Concrete
 {
-    public class YayinTürü
+    public class YayinTuru
     {
         [BsonId]
-        public ObjectId yayinTürüId { get; set; }
+        public ObjectId yayinTuruId { get; set; }
 
-        public string YayinTürüAd { get; set; }
+        public string YayinTuruAd { get; set; }
     }
 }
