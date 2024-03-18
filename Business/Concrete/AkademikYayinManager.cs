@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
@@ -244,9 +245,26 @@ namespace Business.Concrete
                     var yayinTuru = resultDocument.DocumentNode.SelectSingleNode("//tr[th='Journal Section']/td");
                     var tableRows = resultDocument.DocumentNode.SelectSingleNode("//table[@class='table table-striped m-table cite-table']/tbody");
                     var authorSectionNode = resultDocument.DocumentNode.SelectSingleNode("//th[text() = 'Authors']");
-
+                    var downloadLink = resultDocument.DocumentNode.SelectSingleNode("//a[contains(@class, 'pdf') and contains(@title, 'Article PDF link')]");
                     var imgElement = resultDocument.DocumentNode.SelectSingleNode("//img[contains(@class,'d-flex') and contains(@class,'justify-content-center') and contains(@class,'rounded') and contains(@class,'mx-auto') and contains(@class,'d-block')]");
+                    var doiNumarasi = resultDocument.DocumentNode.SelectSingleNode("//a[@class = 'doi-link']")?.Attributes["href"]?.Value;
 
+
+                    string doi = " ";
+                    // Regex deseni
+                    string desen = @"https:\/\/doi\.org\/(\d+\.\d+)\/";
+
+                    // Eşleşmeyi bul
+                    if (doiNumarasi != null)
+                    {
+                        Match eslesme = Regex.Match(doiNumarasi, desen);
+                        if (eslesme.Success)
+                        {
+
+                            doi = eslesme.Groups[1].Value;
+                        }
+
+                    }
                     // img etiketinin src özelliğini al
                     string imgSrc = imgElement?.GetAttributeValue("src", "");
 
@@ -364,7 +382,9 @@ namespace Business.Concrete
                              yazarAdSoyad = ref2
                          }).ToList()
                          : new List<Yazar>(),
-                        image = imgSrc
+                        pdflink = "https://dergipark.org.tr" + hrefValues,
+                        image = imgSrc,
+                        doiNumarasi = doi
 
 
                     }
