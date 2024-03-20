@@ -39,7 +39,7 @@ button {
 
 main {
     display: flex;
-    flex-direction: column; /* Yataydan dikeye dönüþtürme */
+    flex-direction: column;
     padding: 20px;
 }
 

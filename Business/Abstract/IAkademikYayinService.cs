@@ -12,7 +12,6 @@ namespace Business.Abstract
 {
     public interface IAkademikYayinService
     {
-        //GetManyResult<AkademikYayin> GetAkademikYayinByName();
         Task EklemeYap(string searchString,int searchCount);
         public Task updateElasticSearch();
 

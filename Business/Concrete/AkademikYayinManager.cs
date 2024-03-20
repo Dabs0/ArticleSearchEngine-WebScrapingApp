@@ -73,12 +73,10 @@ namespace Business.Concrete
         {
 
 
-            // Tüm makaleleri getir
             var filter = new BsonDocument();
             var cursor = await getCollection().FindAsync(filter);
             var articles = await cursor.ToListAsync();
 
-            // Makaleleri Article modeli şeklinde bir listede tut
             articleList.Clear();
             foreach (var article in articles)
             {
@@ -86,7 +84,6 @@ namespace Business.Concrete
                 articleList.Add(createModelArticle(article));
             }
 
-            // Listeyi yazdır
             Console.WriteLine("Makale Listesi:");
             foreach (var article in articleList)
             {
@@ -100,21 +97,20 @@ namespace Business.Concrete
         {
 
 
-            // Belirli bir ID'ye göre makaleyi filtrele
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", id); // Varsayılan olarak MongoDB'de ID "_id" alanı olarak saklanır
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);  
 
-            // Makaleyi bul
+           
             var articleDocument = getCollection().Find(filter).FirstOrDefault();
 
             if (articleDocument != null)
             {
-                // Article modeline dönüştür
+               
 
 
                 return createModelArticle(articleDocument);
             }
 
-            return null; // Makale bulunamazsa null döndür
+            return null; 
         }
         public List<AkademikYayin> getArticleList()
         {
@@ -125,10 +121,9 @@ namespace Business.Concrete
 		//elastic search verisini güncelle
 		public async Task updateElasticSearch()
 		{
-			// MongoDB'den belgeleri al
 			var mongoDocuments = getCollection().Find(Builders<BsonDocument>.Filter.Empty).ToList();
 
-			// MongoDB belgelerini Elasticsearch belgelerine dönüştür ve Elasticsearch'e ekle
+	
 			var elasticDocuments = new List<AkademikYayin>();
 			foreach (var articleDocument in mongoDocuments)
 			{
@@ -144,7 +139,7 @@ namespace Business.Concrete
 				}
 			}
 
-			// Indeksleme işlemi tamamlanana kadar bekleyin
+			// Indeksleme işlemi tamamlanana kadar bekle
 			await getElasticClient().Indices.RefreshAsync();
 
 			Console.WriteLine("Belgeler Elasticsearch'e başarıyla eklendi.");
@@ -291,7 +286,7 @@ namespace Business.Concrete
 					}
 					string imgSrc = imgElement?.GetAttributeValue("src", "");
 
-                    // Yazarları çekme
+                   
                     if (authorSectionNode != null)
                     {
                         var tdNode = authorSectionNode.SelectSingleNode(".//following-sibling::td");
@@ -330,7 +325,7 @@ namespace Business.Concrete
                         }
                     }
 
-                    // Yayıncıları çekme
+                   
                     if (tableRows != null)
                     {
                         var table = tableRows.SelectNodes(".//tr");
@@ -341,7 +336,7 @@ namespace Business.Concrete
                         }
                     }
 
-                    // Anahtar kelimeleri çekme
+                    
                     if (keyx != null)
                     {
                         var key = keyx.SelectNodes(".//a[@href]");
@@ -352,7 +347,7 @@ namespace Business.Concrete
                         }
                     }
 
-                    // Referansları çekme
+                  
                     if (references != null)
                     {
                         var ref1 = references.SelectNodes(".//li");
@@ -366,7 +361,7 @@ namespace Business.Concrete
                         }
                     }
 
-                    // Akademik yayın oluşturma
+                   
                     AkademikYayin yayin = new AkademikYayin
                     {
                         urlAdresi = resultLink,
@@ -428,7 +423,7 @@ namespace Business.Concrete
                     }
                     yayin.aramaAnahtarKelime = keyword;
                     yayin.alintiSayisi = yayin.Referans.Count;
-					// Yayın var mı diye kontrol etme ve eklemek
+					
 					if (!checkIfExists(yayin))
                     {
                         if (yayin.Ad != null)
@@ -470,14 +465,11 @@ namespace Business.Concrete
         }
         public async Task getYayinTurleriAsync()
         {
-			// YayinTuru koleksiyonunu temsil eden bir değişken
 			var yayinTuruCollection = getDatabase().GetCollection<YayinTuru>("YayinTürü");
-			// Tüm makaleleri getir
 			var filter = new BsonDocument();
 			var cursor = await yayinTuruCollection.FindAsync(filter);
 			var turler = await cursor.ToListAsync();
 
-			// Makaleleri Article modeli şeklinde bir listede tut
 			yayinTurleriList.Clear();
 			foreach (YayinTuru tur in turler)
 			{
@@ -485,7 +477,6 @@ namespace Business.Concrete
 				yayinTurleriList.Add(tur);
 			}
 
-            // Listeyi yazdır
             Console.WriteLine("yayin türleri:");
             foreach(YayinTuru tur in yayinTurleriList)
             {
@@ -499,26 +490,21 @@ namespace Business.Concrete
         }
 		public void checkIfYayinTuruExists(YayinTuru yayinTuru)
 		{
-			// YayinTuru koleksiyonunu temsil eden bir değişken
 			var yayinTuruCollection = getDatabase().GetCollection<YayinTuru>("YayinTürü");
             
-			// Veritabanında bu yayın türünün adıyla eşleşen bir kayıt var mı kontrol edilir
 			var filter = Builders<YayinTuru>.Filter.Eq(x => x.YayinTuruAd, yayinTuru.YayinTuruAd);
             if (!yayinTuruCollection.Find(filter).Any())
             {
 				addYayinTuru(yayinTuru);
 			}
            
-			// Kayıt varsa true, yoksa false döner
 			
 		}
 
 		public void addYayinTuru(YayinTuru yayinTuru)
 		{
-			// YayinTuru koleksiyonunu temsil eden bir değişken
 			var yayinTuruCollection = getDatabase().GetCollection<YayinTuru>("YayinTürü");
             
-            // YayinTuru koleksiyonuna yayinTuru eklenir
             yayinTuruCollection.InsertOne(yayinTuru);
 			Console.WriteLine("Yayin türü eklendi:" + yayinTuru.YayinTuruAd);
 		}

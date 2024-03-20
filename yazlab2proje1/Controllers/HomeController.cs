@@ -14,7 +14,6 @@ namespace yazlab2proje1.Controllers
 {
     public class HomeController : Controller
     {
-      //  DatabaseApp dbApp = new DatabaseApp();
 
         private readonly IAkademikYayinService _akademikYayinService;
         public HomeController(IAkademikYayinService akademikYayinService, ILogger<HomeController> logger)
@@ -76,10 +75,10 @@ namespace yazlab2proje1.Controllers
 				int maxYear = int.Parse(yearMax);
 				results = results.Where(article => article.yayinYili <= maxYear).ToList();
 			}
-			// Eğer hiçbir tür işaretlenmemişse veya hiç tür işaretlenmemişse
+			
 			
 
-			// Seçilen yayın türlerine göre filtreleme yap
+		
 
 			if (!string.IsNullOrEmpty(sortBy))
 			{
@@ -94,7 +93,6 @@ namespace yazlab2proje1.Controllers
 					case "citation":
 						results = results.OrderByDescending(article => article.alintiSayisi).ToList();
 						break;
-					// Diğer sıralama seçenekleri buraya eklenebilir
 					default:
 						break;
 				}

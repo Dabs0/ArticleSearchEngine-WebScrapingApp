@@ -24,7 +24,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 10px 0;
             margin-bottom: 20px;
-            text-align: center; /* Başlık metnini ortala */
+            text-align: center; 
         }
 
         main.container {
@@ -65,7 +65,6 @@
 <body>
     
     <main class="container">
-        <!-- Bu alana MongoDB'den çekilen yayın bilgileri dinamik olarak eklenecek -->
         @foreach (var x in Model)
         {
             <article>
@@ -84,7 +83,6 @@
             </article>
         }
 
-        <!-- Diğer yayınlar da benzer şekilde eklenecek -->
     </main>
 
 </body>
